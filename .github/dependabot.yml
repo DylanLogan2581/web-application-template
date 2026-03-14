@@ -9,8 +9,14 @@ updates:
       - dependency-name: "vite"
         update-types:
           - "version-update:semver-major"
+      - dependency-name: "zod"
+        update-types:
+          - "version-update:semver-major"
     groups:
       npm-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
         patterns:
           - "*"
 
