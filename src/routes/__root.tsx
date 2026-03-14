@@ -28,7 +28,7 @@ export const Route = createRootRoute({
     <QueryClientProvider client={queryClient}>
       <div className="relative min-h-screen overflow-hidden bg-background">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-linear-to-b from-muted/60 via-background to-transparent" />
-        <div className="pointer-events-none absolute left-1/2 top-[-8rem] h-72 w-72 -translate-x-1/2 rounded-full bg-primary/8 blur-3xl" />
+        <div className="pointer-events-none absolute left-1/2 -top-32 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/8 blur-3xl" />
 
         <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-4">
           <header className="sticky top-0 z-10 py-4">
