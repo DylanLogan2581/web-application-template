@@ -67,14 +67,26 @@ supabase/
 - Keep route files thin and move reusable logic into `src/features`.
 - Prefer TypeScript throughout app code.
 - Use the `@/` alias for imports from `src`.
+- Import features through public entrypoints like `@/features/<feature-name>`, not deep internal paths.
 - Reuse existing UI primitives before creating new abstractions.
 - Do not manually edit `src/routeTree.gen.ts`.
 - Add tests for new behavior, bug fixes, and non-trivial refactors when practical.
 
+## Linting Guardrails
+
+- Pre-commit runs Prettier and ESLint on staged files through Husky and `lint-staged`.
+- ESLint enforces import ordering, no duplicate imports, no circular imports, and `@/` aliases over parent relative imports inside `src`.
+- Features should expose public `index.ts` entrypoints and be imported as `@/features/<feature-name>`.
+- Keep direct data access out of routes and components: no direct `fetch` there, and no direct `@/lib/supabase` imports there.
+- `createRouter` and `RouterProvider` belong in `src/main.tsx`. App-level providers like `QueryClientProvider` belong in `src/routes/__root.tsx`.
+- `src/components/ui` follows shadcn-style kebab-case filenames. App/shared/feature component files use PascalCase.
+- ESLint also enforces explicit TypeScript boundaries, accessibility basics, TanStack Query rules, and several restricted patterns such as `console.log`, `enum`, `for...in`, non-null assertions, and ad hoc browser persistence/time/random helpers in app code.
+
 ## Routing
 
 - Route files live in `src/routes`.
-- Keep root providers and global app wiring in `src/routes/__root.tsx`.
+- Keep router creation and `RouterProvider` in `src/main.tsx`.
+- Keep app-level providers and shared layout wiring in `src/routes/__root.tsx`.
 - TanStack Router generates `src/routeTree.gen.ts` from the route files.
 
 Example route:

@@ -1,26 +1,29 @@
-import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { Check, Database, Router } from "lucide-react";
+import { useState } from "react";
 import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
+import { helloQueryOptions, sessionQueryOptions } from "@/features/home";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
+
+import type { JSX } from "react";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required."),
 });
 
-function getErrorText(errors: unknown[]) {
+function getErrorText(errors: unknown[]): string {
   return errors
     .map((error) => {
       if (typeof error === "string") {
         return error;
       }
 
-      if (error && typeof error === "object" && "message" in error) {
+      if (error !== null && typeof error === "object" && "message" in error) {
         const message = error.message;
         return typeof message === "string" ? message : "Invalid value.";
       }
@@ -30,25 +33,15 @@ function getErrorText(errors: unknown[]) {
     .join(", ");
 }
 
-function HomePage() {
+function HomePage(): JSX.Element {
   const [submittedName, setSubmittedName] = useState("");
   const adaptedErrors =
     zodValidator()().validate(
       { value: { name: submittedName }, validationSource: "form" },
       formSchema,
     ) ?? null;
-  const helloQuery = useQuery({
-    queryKey: ["hello"],
-    queryFn: () => Promise.resolve("React Query is working."),
-  });
-  const sessionQuery = useQuery({
-    queryKey: ["supabase-session"],
-    enabled: Boolean(supabase),
-    queryFn: async () => {
-      const { data } = await supabase!.auth.getSession();
-      return data.session?.user.email ?? "No active session.";
-    },
-  });
+  const helloQuery = useQuery(helloQueryOptions);
+  const sessionQuery = useQuery(sessionQueryOptions);
   const form = useForm({
     defaultValues: { name: "" },
     validators: { onChange: formSchema },
@@ -100,9 +93,7 @@ function HomePage() {
             <h2 className="font-medium">Supabase</h2>
           </div>
           <p className="text-sm text-muted-foreground">
-            {supabase
-              ? (sessionQuery.data ?? "Checking auth session...")
-              : "Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable this example."}
+            {sessionQuery.data ?? "Checking auth session..."}
           </p>
         </article>
       </section>
@@ -125,7 +116,9 @@ function HomePage() {
                 <input
                   className={cn(
                     "h-9 rounded-md border bg-background px-3 outline-none transition",
-                    field.state.meta.errors.length && "border-destructive",
+                    field.state.meta.errors.length > 0
+                      ? "border-destructive"
+                      : "",
                   )}
                   name={field.name}
                   value={field.state.value}
@@ -149,11 +142,12 @@ function HomePage() {
           />
         </form>
         <p className="mt-2 text-sm text-muted-foreground">
-          Submitted value: {submittedName || "Nothing yet."}
+          Submitted value:{" "}
+          {submittedName !== "" ? submittedName : "Nothing yet."}
         </p>
         <p className="mt-1 text-sm text-muted-foreground">
           Zod adapter output:{" "}
-          {adaptedErrors
+          {adaptedErrors !== null
             ? "returns formatted errors for invalid values."
             : "valid result."}
         </p>

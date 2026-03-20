@@ -75,11 +75,12 @@ supabase/
 
 ## Naming Conventions
 
-- Use kebab-case for route file names when it improves URL readability.
+- Use kebab-case for route file names. `index.tsx` and `__root.tsx` are the allowed special cases.
 - Use PascalCase for React components.
 - Use camelCase for functions, variables, hooks, and query helpers.
 - Name feature folders after product concepts such as `projects`, `tasks`, `billing`, or `auth`.
 - Prefer singular names for component files and plural names for feature areas when they model collections.
+- Keep `src/components/ui` on shadcn-style kebab-case filenames. Use PascalCase for app/shared/feature component files.
 
 ## What Goes Where
 
@@ -103,8 +104,10 @@ supabase/
 - Keep Supabase client setup in shared infrastructure code such as `src/lib/supabase.ts`.
 - Put feature-specific server state logic in `src/features/<feature-name>/queries`.
 - Prefer TanStack Query for async state instead of manual fetch logic inside components.
+- Do not call `fetch` directly in routes or components.
 - Centralize query keys and query option builders so invalidation stays consistent.
 - Keep raw database access near query modules, not scattered across route components.
+- Do not import `@/lib/supabase` directly into routes or components. Go through feature query modules.
 - If a route needs data immediately, prefer route-level preload or query prefetch patterns instead of duplicating loading logic in child components.
 
 ### Tests
@@ -151,11 +154,25 @@ supabase/
 
 - This app uses TanStack Router file-based routing.
 - Add new route files under `src/routes`.
-- Keep global providers and root app wiring in `src/routes/__root.tsx`.
+- Create the router and render `RouterProvider` only in `src/main.tsx`.
+- Keep app-level providers and shared layout wiring in `src/routes/__root.tsx`.
 - Let the router plugin generate `src/routeTree.gen.ts`.
 - Do not hand-edit `src/routeTree.gen.ts`.
 - Prefer route modules to compose features rather than own all business logic.
 - Keep auth checks, redirects, and route guards close to the route boundary.
+
+## Lint-Enforced Constraints
+
+- Use the `@/` alias instead of parent relative imports inside `src`.
+- Keep imports ordered, deduplicated, and acyclic.
+- Import features only through public entrypoints such as `@/features/<feature-name>`, not internal subpaths.
+- Keep `src/components/ui` low-level. UI primitives must not depend on routes, features, app/shared components, or the Supabase client.
+- Create `QueryClient` and render `QueryClientProvider` only in the approved root/provider setup.
+- Use function declarations for named React components.
+- Prefer `type`, `import type`, explicit return types, and exhaustive `switch` handling for unions.
+- Avoid `any`, non-null assertions, `console.log`, `enum`, `for...in`, and `with`.
+- Avoid direct `window.location` writes, `localStorage`, `Date.now`, `new Date`, and `Math.random` in app code.
+- Avoid `JSON.parse`, `JSON.stringify`, `setTimeout`, and `setInterval` in routes/components unless moved behind dedicated helpers or hooks.
 
 ## UI and Styling Conventions
 

@@ -22,5 +22,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts", "eslint.config.ts"]
+  "include": [
+    "vite.config.ts",
+    "eslint.config.ts",
+    "eslint-plugin-jsx-a11y.d.ts"
+  ]
 }

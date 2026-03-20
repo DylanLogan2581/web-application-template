@@ -1,7 +1,8 @@
-import { lazy, Suspense } from "react";
-import { createRootRoute, Outlet, Link } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createRootRoute, Outlet, Link } from "@tanstack/react-router";
 import { Layers3, Sparkles } from "lucide-react";
+import { lazy, Suspense } from "react";
+
 import { Button } from "@/components/ui/button";
 
 const queryClient = new QueryClient();
@@ -96,7 +97,7 @@ export const Route = createRootRoute({
           </footer>
         </div>
       </div>
-      {TanStackRouterDevtools && ReactQueryDevtools ? (
+      {TanStackRouterDevtools !== null && ReactQueryDevtools !== null ? (
         <Suspense fallback={null}>
           <TanStackRouterDevtools />
           <ReactQueryDevtools />
