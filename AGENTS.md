@@ -36,6 +36,15 @@ This repository uses:
 - `supabase/functions` is the source of truth for Edge Functions.
 - Supabase Row Level Security is required for application tables.
 
+## Branch Rules
+
+- Work from a branch and merge through a pull request instead of planning on direct commits to `main`.
+- Keep branch names short and descriptive, for example `feat/projects-list`, `fix/auth-redirect`, or `chore/eslint-docs`.
+- `main` is protected by strict required checks named `Lint` and `Build`.
+- `main` requires 1 approving review, dismisses stale reviews on new pushes, and requires conversation resolution before merge.
+- Force pushes and deletions are disabled on `main`.
+- Admins may still be able to bypass protection, but agents should treat the PR workflow as the default rule.
+
 ## Recommended Directory Structure
 
 Follow this structure for new work:

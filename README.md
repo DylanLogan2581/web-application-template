@@ -82,6 +82,15 @@ supabase/
 - `src/components/ui` follows shadcn-style kebab-case filenames. App/shared/feature component files use PascalCase.
 - ESLint also enforces explicit TypeScript boundaries, accessibility basics, TanStack Query rules, and several restricted patterns such as `console.log`, `enum`, `for...in`, non-null assertions, and ad hoc browser persistence/time/random helpers in app code.
 
+## Branch Workflow
+
+- Do work on a branch and merge through a pull request. Do not plan on committing directly to `main`.
+- Use short descriptive branch names such as `feat/auth-session`, `fix/query-loading-state`, or `chore/lint-rules`.
+- `main` is protected with strict required checks for `Lint` and `Build`.
+- `main` also requires 1 approving review, dismisses stale reviews after new pushes, and requires PR conversations to be resolved before merge.
+- Force pushes and branch deletions are disabled on `main`.
+- Admins are not fully locked out by branch protection, but the repo convention should still be to use branches and PRs.
+
 ## Routing
 
 - Route files live in `src/routes`.
