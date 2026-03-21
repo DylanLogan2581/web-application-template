@@ -75,6 +75,7 @@ supabase/
 ## Linting Guardrails
 
 - Pre-commit runs Prettier and ESLint on staged files through Husky and `lint-staged`.
+- Commit messages are validated as semantic commits through Husky and `commitlint`.
 - ESLint enforces import ordering, no duplicate imports, no circular imports, and `@/` aliases over parent relative imports inside `src`.
 - Features should expose public `index.ts` entrypoints and be imported as `@/features/<feature-name>`.
 - Keep direct data access out of routes and components: no direct `fetch` there, and no direct `@/lib/supabase` imports there.

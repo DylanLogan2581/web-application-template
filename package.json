@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "commitlint": "commitlint --edit",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "npm run lint:eslint && npm run lint:docs && npm run lint:sql",
@@ -42,6 +43,8 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
     "@eslint/js": "^9.39.1",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/eslint-plugin-query": "^5.91.5",

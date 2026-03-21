@@ -61,6 +61,27 @@ On commit, staged files are checked with:
 
 That means some issues are fixed automatically, but commits still fail when remaining lint errors cannot be auto-fixed.
 
+### Commit Message Format
+
+This repository also validates commit messages with Husky and `commitlint`.
+
+Use semantic commits that follow the Conventional Commits format:
+
+- `feat(auth): add session refresh`
+- `fix(router): handle missing route params`
+- `docs(readme): update setup instructions`
+- `chore(deps): refresh lint rules`
+
+Commit messages must:
+
+- use one of the standard conventional types: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`
+- include both a type and a scope
+- stay within the configured header max length
+- use lowercase casing
+- avoid a trailing period in the subject
+
+For example, `feat(auth): add password reset flow` passes, while `feat: Add password reset flow.` fails.
+
 ## Branching and Pull Requests
 
 ### Branch Rules
