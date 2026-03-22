@@ -10,7 +10,7 @@ const isDev = import.meta.env.DEV;
 
 const TanStackRouterDevtools = isDev
   ? lazy(() =>
-      import("@tanstack/router-devtools").then((mod) => ({
+      import("@tanstack/react-router-devtools").then((mod) => ({
         default: mod.TanStackRouterDevtools,
       })),
     )
