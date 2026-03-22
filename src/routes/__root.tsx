@@ -1,11 +1,15 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createRootRoute, Outlet, Link } from "@tanstack/react-router";
+import { QueryClientProvider } from "@tanstack/react-query";
+import {
+  createRootRouteWithContext,
+  Outlet,
+  Link,
+} from "@tanstack/react-router";
 import { Layers3, Sparkles } from "lucide-react";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, type JSX } from "react";
 
 import { Button } from "@/components/ui/button";
+import { type AppRouterContext } from "@/lib/queryClient";
 
-const queryClient = new QueryClient();
 const isDev = import.meta.env.DEV;
 
 const TanStackRouterDevtools = isDev
@@ -24,8 +28,10 @@ const ReactQueryDevtools = isDev
     )
   : null;
 
-export const Route = createRootRoute({
-  component: () => (
+function RootLayout(): JSX.Element {
+  const { queryClient } = Route.useRouteContext();
+
+  return (
     <QueryClientProvider client={queryClient}>
       <div className="relative min-h-screen overflow-hidden bg-background">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-linear-to-b from-muted/60 via-background to-transparent" />
@@ -104,5 +110,9 @@ export const Route = createRootRoute({
         </Suspense>
       ) : null}
     </QueryClientProvider>
-  ),
+  );
+}
+
+export const Route = createRootRouteWithContext<AppRouterContext>()({
+  component: RootLayout,
 });

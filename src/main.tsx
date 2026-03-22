@@ -2,10 +2,17 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import { queryClient } from "@/lib/queryClient";
+
 import { routeTree } from "./routeTree.gen";
 import "./index.css";
 
-const router = createRouter({ routeTree });
+const router = createRouter({
+  routeTree,
+  context: {
+    queryClient,
+  },
+});
 const rootElement = document.getElementById("root");
 
 declare module "@tanstack/react-router" {
