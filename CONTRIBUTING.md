@@ -143,6 +143,8 @@ GitHub workflows are also linted separately so changes under `.github/workflows`
 
 Pull requests also run a dependency review workflow so package manifest and lockfile changes get an extra GitHub-native review pass.
 
+Code scanning also runs through a repository-managed CodeQL workflow so the scanning behavior is versioned in git instead of living only in GitHub's default setup UI.
+
 ### Issue Planning
 
 This repository includes GitHub issue templates so issues can be used as planning cards.
