@@ -31,7 +31,7 @@ This repository is a web app template. Optimize for:
 - Keep route files thin. Routes should define the route and compose page-level modules.
 - Prefer small modules over mixed-responsibility files.
 - Use TypeScript in app code.
-- Use the `@/` alias for imports from `src`.
+- Use the `@/` alias for cross-layer imports from `src`. Within a feature, local relative imports are fine.
 - Prefer named exports.
 - Reuse existing UI primitives and helpers before adding abstractions.
 - Do not manually edit generated files such as `src/routeTree.gen.ts`.
@@ -122,7 +122,7 @@ supabase/
 
 ## Lint-Enforced Expectations
 
-- Use `@/` instead of parent relative imports inside `src`.
+- Use `@/` for cross-layer imports inside `src`. Within a feature, local relative imports are allowed.
 - Keep imports ordered, deduplicated, and acyclic.
 - Import features only through public entrypoints such as `@/features/<feature-name>`.
 - Keep `src/components/ui` independent of routes, features, app/shared components, and the Supabase client.

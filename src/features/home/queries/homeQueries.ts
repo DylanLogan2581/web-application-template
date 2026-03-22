@@ -2,6 +2,8 @@ import { queryOptions } from "@tanstack/react-query";
 
 import { supabase } from "@/lib/supabase";
 
+import type { QueryClient } from "@tanstack/react-query";
+
 function getSessionEmailFallback(): string {
   if (supabase === null) {
     return "Supabase is not configured.";
@@ -10,13 +12,8 @@ function getSessionEmailFallback(): string {
   return "No active session.";
 }
 
-export const helloQueryOptions = queryOptions({
-  queryKey: ["hello"],
-  queryFn: (): Promise<string> => Promise.resolve("React Query is working."),
-});
-
 export const sessionQueryOptions = queryOptions({
-  queryKey: ["supabase-session"],
+  queryKey: ["home", "supabase-session"],
   queryFn: async (): Promise<string> => {
     if (supabase === null) {
       return getSessionEmailFallback();
@@ -32,3 +29,7 @@ export const sessionQueryOptions = queryOptions({
     return email;
   },
 });
+
+export async function preloadHomePage(queryClient: QueryClient): Promise<void> {
+  await queryClient.ensureQueryData(sessionQueryOptions);
+}

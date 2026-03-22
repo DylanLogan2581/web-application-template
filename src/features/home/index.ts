@@ -1,1 +1,2 @@
-export { helloQueryOptions, sessionQueryOptions } from "./queries/homeQueries";
+export { HomePage } from "./components/HomePage";
+export { preloadHomePage, sessionQueryOptions } from "./queries/homeQueries";

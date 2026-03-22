@@ -74,7 +74,8 @@ The short version:
 
 - keep route files thin
 - organize reusable logic under `src/features/<feature-name>`
-- use the `@/` alias inside `src`
+- use the `@/` alias for cross-layer imports inside `src`
+- use local relative imports freely within the same feature when that keeps feature internals simple
 - import features through public entrypoints
 - keep `src/components/ui` low-level
 - keep raw data access out of routes and components

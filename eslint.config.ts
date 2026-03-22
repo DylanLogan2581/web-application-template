@@ -578,6 +578,23 @@ export default defineConfig([
     },
   },
   {
+    files: ["src/features/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/features/*/**"],
+              message:
+                "Import other features through public entrypoints. Within the same feature, local relative imports are allowed.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ["src/routes/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
@@ -645,6 +662,73 @@ export default defineConfig([
           selector: "CallExpression[callee.name='setInterval']",
           message:
             "Avoid raw setInterval in components and routes. Prefer a dedicated hook or cleanup-aware abstraction.",
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/features/*/components/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/lib/supabase"],
+              message:
+                "Access Supabase through feature query modules instead of directly from feature components.",
+            },
+          ],
+        },
+      ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "ForInStatement",
+          message:
+            "Avoid for...in. Prefer Object.keys, Object.entries, or for...of over explicit collections.",
+        },
+        {
+          selector: "TSEnumDeclaration",
+          message:
+            "Prefer union types or as const objects over enums in app code.",
+        },
+        {
+          selector:
+            "CallExpression[callee.object.name='console'][callee.property.name='log']",
+          message:
+            "Avoid console.log in app code. Use intentional UI state, devtools, or structured logging instead.",
+        },
+        {
+          selector: "WithStatement",
+          message: "Do not use with statements.",
+        },
+        {
+          selector: "CallExpression[callee.name='fetch']",
+          message:
+            "Do not call fetch directly in feature components. Use feature query modules instead.",
+        },
+        {
+          selector:
+            "CallExpression[callee.object.name='JSON'][callee.property.name='parse']",
+          message:
+            "Avoid JSON.parse in feature components. Keep serialization in helpers, queries, or infrastructure modules.",
+        },
+        {
+          selector:
+            "CallExpression[callee.object.name='JSON'][callee.property.name='stringify']",
+          message:
+            "Avoid JSON.stringify in feature components. Keep serialization in helpers, queries, or infrastructure modules.",
+        },
+        {
+          selector: "CallExpression[callee.name='setTimeout']",
+          message:
+            "Avoid raw setTimeout in feature components. Prefer a dedicated hook or cleanup-aware abstraction.",
+        },
+        {
+          selector: "CallExpression[callee.name='setInterval']",
+          message:
+            "Avoid raw setInterval in feature components. Prefer a dedicated hook or cleanup-aware abstraction.",
         },
       ],
     },
