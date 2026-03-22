@@ -111,6 +111,8 @@ npm run build
 
 Also run `npm run test` when tests exist for the area you changed.
 
+This template intentionally allows an empty Vitest suite at the start so a fresh app is not forced to add placeholder tests before any real behavior exists. Once a project has meaningful logic, add tests for the changed area instead of relying on the empty-suite fallback.
+
 ## Security Expectations
 
 Review every change for:

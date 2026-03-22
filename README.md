@@ -44,7 +44,7 @@ VITE_SUPABASE_ANON_KEY=...
 - `npm run build` type-checks and builds the app
 - `npm run lint` runs ESLint, Markdown linting, and SQL formatting checks
 - `npm run preview` serves the production build locally
-- `npm run test` runs Vitest
+- `npm run test` runs Vitest and intentionally passes when the starter has no tests yet
 - `npm run prepare` installs Husky hooks
 
 ## Documentation Map

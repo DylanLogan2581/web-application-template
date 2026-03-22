@@ -155,6 +155,7 @@ supabase/
 ## Testing
 
 - Use Vitest for unit and integration tests.
+- This template intentionally keeps `npm run test` green when no tests exist yet. Do not add placeholder tests only to satisfy the starter.
 - Add tests for new behavior, bug fixes, and non-trivial refactors when practical.
 - Shared test helpers belong in `src/test`.
 - Prefer fast unit tests for schemas, query helpers, and pure transformations.
