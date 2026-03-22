@@ -136,6 +136,8 @@ GitHub also applies small organizational labels automatically:
 - `type:` labels are inferred from the PR title
 - `area:` labels are inferred from changed files
 
+GitHub workflows are also linted separately so changes under `.github/workflows` get fast feedback before they become CI failures later.
+
 ### Issue Planning
 
 This repository includes GitHub issue templates so issues can be used as planning cards.
