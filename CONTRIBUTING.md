@@ -134,14 +134,21 @@ Pull request titles should also use the same semantic format as commit messages:
 
 This helps preserve clean history when squash merging and powers automatic PR labeling.
 
+Dependabot pull requests are the exception: they use Dependabot-managed titles and labels, and the stricter PR governance rules intentionally skip them.
+
 GitHub also applies small organizational labels automatically:
 
 - `type:` labels are inferred from the PR title
 - `area:` labels are inferred from changed files
+- Dependabot PRs keep Dependabot-managed labels instead of the custom label sync workflow
 
 GitHub workflows are also linted separately so changes under `.github/workflows` get fast feedback before they become CI failures later.
 
 Pull requests also run a dependency review workflow so package manifest and lockfile changes get an extra GitHub-native review pass.
+
+Dependabot is also configured to avoid known-incompatible major updates until the surrounding toolchain is ready for them.
+
+Code scanning also runs through a repository-managed CodeQL workflow so the scanning behavior is versioned in git instead of living only in GitHub's default setup UI.
 
 ### Issue Planning
 
