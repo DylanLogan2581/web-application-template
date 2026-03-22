@@ -141,6 +141,8 @@ GitHub also applies small organizational labels automatically:
 
 GitHub workflows are also linted separately so changes under `.github/workflows` get fast feedback before they become CI failures later.
 
+Pull requests also run a dependency review workflow so package manifest and lockfile changes get an extra GitHub-native review pass.
+
 ### Issue Planning
 
 This repository includes GitHub issue templates so issues can be used as planning cards.
