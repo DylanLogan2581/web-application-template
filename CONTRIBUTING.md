@@ -103,12 +103,15 @@ Current rules:
 - required status checks: `Lint` and `Build`
 - strict status checks enabled
 - 1 approving review required
+- code owner review required
 - stale reviews dismissed after new pushes
 - conversation resolution required before merge
 - force pushes disabled
 - branch deletions disabled
 
 Admins may still be able to bypass protection, but the expected workflow for contributors and agents is still branch -> pull request -> review -> merge.
+
+This repository also uses `CODEOWNERS` so pull requests request review from the repository owner by default.
 
 ### Pull Request Expectations
 
