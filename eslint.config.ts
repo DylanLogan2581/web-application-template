@@ -1,6 +1,7 @@
 import js from "@eslint/js";
 import tanstackQuery from "@tanstack/eslint-plugin-query";
 import { defineConfig, globalIgnores } from "eslint/config";
+import { createConfig as createBoundariesConfig } from "eslint-plugin-boundaries/config";
 import importPlugin from "eslint-plugin-import";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import react from "eslint-plugin-react";
@@ -12,6 +13,180 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 import type { ESLint } from "eslint";
+
+const boundariesConfig = createBoundariesConfig({
+  files: ["src/**/*.{ts,tsx}"],
+  settings: {
+    "boundaries/elements": [
+      {
+        type: "bootstrap",
+        pattern: "src/main.tsx",
+        mode: "full",
+      },
+      {
+        type: "route",
+        pattern: "src/routes/**/*.{ts,tsx}",
+        mode: "full",
+      },
+      {
+        type: "feature",
+        pattern: "src/features/*",
+        capture: ["feature"],
+      },
+      {
+        type: "ui-component",
+        pattern: "src/components/ui/**/*.{ts,tsx}",
+        mode: "full",
+      },
+      {
+        type: "app-component",
+        pattern: "src/components/app/**/*.{ts,tsx}",
+        mode: "full",
+      },
+      {
+        type: "shared-component",
+        pattern: "src/components/shared/**/*.{ts,tsx}",
+        mode: "full",
+      },
+      {
+        type: "hook",
+        pattern: "src/hooks/**/*.{ts,tsx}",
+        mode: "full",
+      },
+      {
+        type: "lib",
+        pattern: "src/lib/**/*.{ts,tsx}",
+        mode: "full",
+      },
+      {
+        type: "shared-type",
+        pattern: "src/types/**/*.{ts,tsx}",
+        mode: "full",
+      },
+      {
+        type: "test",
+        pattern: "src/test/**/*.{ts,tsx}",
+        mode: "full",
+      },
+    ],
+    "boundaries/ignore": ["src/routeTree.gen.ts"],
+    "boundaries/include": ["src/**/*.{ts,tsx}"],
+  },
+  rules: {
+    "boundaries/dependencies": [
+      "error",
+      {
+        default: "disallow",
+        rules: [
+          {
+            from: { type: "bootstrap" },
+            allow: { to: { type: ["lib", "route"] } },
+          },
+          {
+            from: { type: "route" },
+            allow: {
+              to: {
+                type: [
+                  "feature",
+                  "app-component",
+                  "shared-component",
+                  "ui-component",
+                  "hook",
+                  "lib",
+                  "shared-type",
+                ],
+              },
+            },
+          },
+          {
+            from: { type: "feature" },
+            allow: {
+              to: {
+                type: [
+                  "feature",
+                  "app-component",
+                  "shared-component",
+                  "ui-component",
+                  "hook",
+                  "lib",
+                  "shared-type",
+                ],
+              },
+            },
+          },
+          {
+            from: { type: "app-component" },
+            allow: {
+              to: {
+                type: [
+                  "app-component",
+                  "shared-component",
+                  "ui-component",
+                  "hook",
+                  "lib",
+                  "shared-type",
+                ],
+              },
+            },
+          },
+          {
+            from: { type: "shared-component" },
+            allow: {
+              to: {
+                type: [
+                  "shared-component",
+                  "ui-component",
+                  "hook",
+                  "lib",
+                  "shared-type",
+                ],
+              },
+            },
+          },
+          {
+            from: { type: "ui-component" },
+            allow: {
+              to: {
+                type: ["ui-component", "lib", "shared-type"],
+              },
+            },
+          },
+          {
+            from: { type: "hook" },
+            allow: {
+              to: {
+                type: ["hook", "lib", "shared-type"],
+              },
+            },
+          },
+          {
+            from: { type: "lib" },
+            allow: {
+              to: {
+                type: ["lib", "shared-type"],
+              },
+            },
+          },
+          {
+            from: { type: "shared-type" },
+            allow: {
+              to: {
+                type: ["shared-type"],
+              },
+            },
+          },
+          {
+            from: { type: "test" },
+            allow: {
+              to: { type: "*" },
+            },
+          },
+        ],
+      },
+    ],
+    "boundaries/no-unknown-files": "error",
+  },
+});
 
 export default defineConfig([
   globalIgnores(["dist", "src/routeTree.gen.ts"]),
@@ -41,6 +216,12 @@ export default defineConfig([
       },
     },
     settings: {
+      "import/resolver": {
+        typescript: {
+          noWarnOnMultipleProjects: true,
+          project: ["./tsconfig.app.json", "./tsconfig.node.json"],
+        },
+      },
       react: {
         version: "detect",
       },
@@ -233,6 +414,7 @@ export default defineConfig([
       "@tanstack/query/mutation-property-order": "error",
     },
   },
+  boundariesConfig,
   {
     files: ["src/**/*.{ts,tsx}"],
     ignores: [
