@@ -123,6 +123,19 @@ Good pull requests:
 
 Prefer small and medium PRs over large mixed changes.
 
+Pull request titles should also use the same semantic format as commit messages:
+
+- `feat(auth): add password reset flow`
+- `fix(router): handle missing route params`
+- `docs(readme): clarify local setup`
+
+This helps preserve clean history when squash merging and powers automatic PR labeling.
+
+GitHub also applies small organizational labels automatically:
+
+- `type:` labels are inferred from the PR title
+- `area:` labels are inferred from changed files
+
 ### Issue Planning
 
 This repository includes GitHub issue templates so issues can be used as planning cards.
