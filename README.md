@@ -1,6 +1,6 @@
 # Web Application Template
 
-Opinionated React + TypeScript starter built with Vite, TanStack Router, TanStack Query, Tailwind CSS v4, shadcn/ui, and Supabase.
+Opinionated React + TypeScript starter for product apps that want strong structure, clear boundaries, and good behavior from both humans and coding agents.
 
 ## Stack
 
@@ -11,13 +11,16 @@ Opinionated React + TypeScript starter built with Vite, TanStack Router, TanStac
 - TanStack Query
 - Tailwind CSS v4
 - shadcn/ui
+- Vitest
 - Supabase
 
-## Requirements
+## What This Template Optimizes For
 
-- Node.js 20+
-- npm 10+
-- Optional: Supabase CLI for local database and auth workflows
+- Thin route files and feature-first organization
+- Strict TypeScript and linting
+- Clear query and infrastructure boundaries
+- Supabase-ready structure with migrations and Edge Functions
+- Repository automation that nudges clean PR and commit hygiene
 
 ## Quick Start
 
@@ -26,112 +29,91 @@ npm install
 npm run dev
 ```
 
-The app runs on Vite's default dev server URL, usually `http://localhost:5173`.
+The app usually runs at `http://localhost:5173`.
 
-If you are using Supabase, copy `.env.example` to `.env` and add your project values.
+If you want Supabase connected in the browser app, copy `.env.example` to `.env` and set:
+
+```bash
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+```
 
 ## Scripts
 
 - `npm run dev` starts the Vite dev server
 - `npm run build` type-checks and builds the app
-- `npm run lint` runs ESLint across the repo
+- `npm run lint` runs ESLint, Markdown linting, and SQL formatting checks
 - `npm run preview` serves the production build locally
+- `npm run test` runs Vitest
 - `npm run prepare` installs Husky hooks
+
+## Documentation Map
+
+- `README.md`: human overview, setup, and repository tour
+- `CONTRIBUTING.md`: human contribution workflow and expectations
+- `AGENTS.md`: agent-only working agreement and code organization rules
+- `SECURITY.md`: vulnerability reporting and security expectations
+
+If you are contributing as a person, start here and then read `CONTRIBUTING.md`.
+
+If you are an agent, `AGENTS.md` is the source of truth.
 
 ## Project Structure
 
 ```text
 src/
   components/
-    ui/                  # design-system primitives
-    app/                 # shared app-level components
-    shared/              # lightweight cross-feature components
-  features/              # feature-owned UI, queries, hooks, schemas, types, utils
-  hooks/                 # shared hooks
-  lib/                   # shared infrastructure and utilities
-  routes/                # route files and route structure
-  test/                  # shared test utilities
+    ui/                  # low-level primitives
+    app/                 # app-specific shared components
+    shared/              # small reusable cross-feature components
+  features/              # feature-owned components, queries, hooks, schemas, utils
+  hooks/                 # app-wide reusable hooks
+  lib/                   # infrastructure and generic utilities
+  routes/                # route files only
+  test/                  # shared test setup and helpers
   types/                 # shared domain types
   index.css              # global theme and styles
   main.tsx               # app bootstrap
 
 supabase/
   config.toml            # local Supabase config
-  functions/             # edge functions
+  functions/             # Edge Functions
   migrations/            # schema history
   seed.sql               # optional deterministic seed data
 ```
 
-## Conventions
+## Template Conventions
 
-- Keep route files thin and move reusable logic into `src/features`.
-- Prefer TypeScript throughout app code.
-- Use the `@/` alias for imports from `src`.
-- Import features through public entrypoints like `@/features/<feature-name>`, not deep internal paths.
-- Reuse existing UI primitives before creating new abstractions.
-- Do not manually edit `src/routeTree.gen.ts`.
-- Add tests for new behavior, bug fixes, and non-trivial refactors when practical.
-
-## Linting Guardrails
-
-- Pre-commit runs Prettier and ESLint on staged files through Husky and `lint-staged`.
-- Commit messages are validated as semantic commits through Husky and `commitlint`.
-- ESLint enforces import ordering, no duplicate imports, no circular imports, and `@/` aliases over parent relative imports inside `src`.
-- Features should expose public `index.ts` entrypoints and be imported as `@/features/<feature-name>`.
-- Keep direct data access out of routes and components: no direct `fetch` there, and no direct `@/lib/supabase` imports there.
-- `createRouter` and `RouterProvider` belong in `src/main.tsx`. App-level providers like `QueryClientProvider` belong in `src/routes/__root.tsx`.
-- `src/components/ui` follows shadcn-style kebab-case filenames. App/shared/feature component files use PascalCase.
-- ESLint also enforces explicit TypeScript boundaries, accessibility basics, TanStack Query rules, and several restricted patterns such as `console.log`, `enum`, `for...in`, non-null assertions, and ad hoc browser persistence/time/random helpers in app code.
-
-## Branch Workflow
-
-- Do work on a branch and merge through a pull request. Do not plan on committing directly to `main`.
-- Use short descriptive branch names such as `feat/auth-session`, `fix/query-loading-state`, or `chore/lint-rules`.
-- `main` is protected with strict required checks for `Lint` and `Build`.
-- `main` also requires 1 approving review, dismisses stale reviews after new pushes, and requires PR conversations to be resolved before merge.
-- Force pushes and branch deletions are disabled on `main`.
-- Admins are not fully locked out by branch protection, but the repo convention should still be to use branches and PRs.
-
-## Routing
-
-- Route files live in `src/routes`.
-- Keep router creation and `RouterProvider` in `src/main.tsx`.
-- Keep app-level providers and shared layout wiring in `src/routes/__root.tsx`.
-- TanStack Router generates `src/routeTree.gen.ts` from the route files.
-
-Example route:
-
-```tsx
-import { createFileRoute } from "@tanstack/react-router";
-
-export const Route = createFileRoute("/settings")({
-  component: SettingsPage,
-});
-
-function SettingsPage() {
-  return <div>Settings page</div>;
-}
-```
-
-## Supabase Notes
-
+- Keep route files small and move growing logic into `src/features`.
+- Import from `src` through the `@/` alias.
+- Import features through public entrypoints such as `@/features/<feature-name>`.
+- Keep data access in feature query modules instead of routes and components.
+- Do not edit generated files such as `src/routeTree.gen.ts` by hand.
 - Treat `supabase/migrations` as the source of truth for schema changes.
-- Create database changes through migrations, not only in the dashboard.
-- Enable Row Level Security for application tables and add policies with the migration.
-- Keep secrets out of frontend code and out of `VITE_` environment variables.
-- Use Edge Functions for privileged or secret-bearing workflows.
+- Enable Row Level Security on application tables.
+
+## Repository Automation
+
+This template ships automation that downstream projects can keep:
+
+- Husky + lint-staged for pre-commit formatting and linting
+- commitlint for conventional commit messages
+- GitHub Actions for lint, build, test, dependency review, workflow linting, and CodeQL
+- CODEOWNERS and PR governance helpers
 
 ## Before Shipping Changes
 
-When practical, run:
+Run the checks that fit your change:
 
 ```bash
 npm run lint
 npm run build
 ```
 
-If you changed schema or Supabase behavior, also confirm:
+If you changed behavior covered by tests, also run `npm run test`.
+
+If you changed schema, also confirm:
 
 - a migration was added in `supabase/migrations`
-- RLS and policies were included for application tables
-- generated types were updated if the project uses them
+- RLS and policies were updated when needed
+- generated database types were updated if the project uses them
