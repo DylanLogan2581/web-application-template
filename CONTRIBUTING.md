@@ -123,6 +123,20 @@ Good pull requests:
 
 Prefer small and medium PRs over large mixed changes.
 
+### Issue Planning
+
+This repository includes GitHub issue templates so issues can be used as planning cards.
+
+The templates are organized around the same semantic categories used in commit messages:
+
+- Feature cards align with `feat`
+- Bug cards align with `fix`
+- Refactor cards align with `refactor`
+- Docs cards align with `docs`
+- Maintenance cards cover `chore`, `build`, `ci`, `perf`, `style`, `test`, and `revert`
+
+This keeps issue planning and commit history speaking the same language without requiring a separate issue template for every possible commit type.
+
 ## Code and File Conventions
 
 These are the contributor-facing highlights. For the full working agreement, also read `AGENTS.md`.
