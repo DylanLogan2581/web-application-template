@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "bootstrap:repo": "node ./scripts/bootstrap-repo.mjs",
     "commitlint": "commitlint --edit",
     "dev": "vite",
     "build": "tsc -b && vite build",
