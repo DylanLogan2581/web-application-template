@@ -36,7 +36,6 @@ type PullRequestReviews = {
 type BranchProtection = {
   allow_deletions: FeatureToggle;
   allow_force_pushes: FeatureToggle;
-  allow_fork_syncing: FeatureToggle;
   block_creations: FeatureToggle;
   enforce_admins: FeatureToggle;
   lock_branch: FeatureToggle;
@@ -63,7 +62,6 @@ type SecurityAndAnalysis = Record<string, SecuritySetting>;
 
 type RepositoryDetails = {
   allow_auto_merge: boolean;
-  allow_forking?: boolean;
   allow_merge_commit: boolean;
   allow_rebase_merge: boolean;
   allow_squash_merge: boolean;
@@ -364,7 +362,6 @@ function applyRepositorySettings(
   runCommand("gh", arguments_);
 
   const apiPayload: JsonObject = {
-    allow_forking: Boolean(sourceRepository.allow_forking),
     web_commit_signoff_required: Boolean(
       sourceRepository.web_commit_signoff_required,
     ),
@@ -489,16 +486,6 @@ function syncBranchProtection(
   const pullRequestReviews =
     branchProtection.required_pull_request_reviews !== null
       ? {
-          bypass_pull_request_allowances: {
-            apps: [],
-            teams: [],
-            users: [],
-          },
-          dismissal_restrictions: {
-            apps: [],
-            teams: [],
-            users: [],
-          },
           dismiss_stale_reviews:
             branchProtection.required_pull_request_reviews
               .dismiss_stale_reviews,
@@ -517,7 +504,6 @@ function syncBranchProtection(
   const payload: JsonObject = {
     allow_deletions: branchProtection.allow_deletions.enabled,
     allow_force_pushes: branchProtection.allow_force_pushes.enabled,
-    allow_fork_syncing: branchProtection.allow_fork_syncing.enabled,
     block_creations: branchProtection.block_creations.enabled,
     enforce_admins: branchProtection.enforce_admins.enabled,
     lock_branch: branchProtection.lock_branch.enabled,
@@ -535,11 +521,21 @@ function syncBranchProtection(
     restrictions: null,
   };
 
-  ghApiWithBody(
-    "PUT",
-    `repos/${targetRepository}/branches/${branch}/protection`,
-    payload,
-  );
+  try {
+    ghApiWithBody(
+      "PUT",
+      `repos/${targetRepository}/branches/${branch}/protection`,
+      payload,
+    );
+  } catch (error) {
+    throw new Error(
+      [
+        `Failed to sync branch protection for ${targetRepository}:${branch}.`,
+        formatError(error),
+        `Payload: ${JSON.stringify(payload)}`,
+      ].join(" "),
+    );
+  }
 }
 
 function rewriteTemplateReferences({
