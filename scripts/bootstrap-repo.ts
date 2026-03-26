@@ -9,10 +9,86 @@ const DEFAULT_SOURCE_REPO = "DylanLogan2581/web-application-template";
 const TEMPLATE_REPO_NAME = "web-application-template";
 const TEMPLATE_USER_LOGIN = "DylanLogan2581";
 
-function main() {
+type BootstrapOptions = {
+  help?: boolean;
+  maintainer?: string;
+  repo?: string;
+  source?: string;
+};
+
+type CommandResult = {
+  status: number;
+  stderr: string;
+  stdout: string;
+};
+
+type FeatureToggle = {
+  enabled: boolean;
+};
+
+type PullRequestReviews = {
+  dismiss_stale_reviews: boolean;
+  require_code_owner_reviews: boolean;
+  require_last_push_approval: boolean;
+  required_approving_review_count: number;
+};
+
+type BranchProtection = {
+  allow_deletions: FeatureToggle;
+  allow_force_pushes: FeatureToggle;
+  allow_fork_syncing: FeatureToggle;
+  block_creations: FeatureToggle;
+  enforce_admins: FeatureToggle;
+  lock_branch: FeatureToggle;
+  required_conversation_resolution: FeatureToggle;
+  required_linear_history: FeatureToggle;
+  required_pull_request_reviews: PullRequestReviews | null;
+  required_status_checks: {
+    contexts: string[];
+    strict: boolean;
+  } | null;
+};
+
+type Autolink = {
+  is_alphanumeric: boolean;
+  key_prefix: string;
+  url_template: string;
+};
+
+type SecuritySetting = {
+  status: string;
+};
+
+type SecurityAndAnalysis = Record<string, SecuritySetting>;
+
+type RepositoryDetails = {
+  allow_auto_merge: boolean;
+  allow_forking?: boolean;
+  allow_merge_commit: boolean;
+  allow_rebase_merge: boolean;
+  allow_squash_merge: boolean;
+  allow_update_branch: boolean;
+  default_branch: string;
+  delete_branch_on_merge: boolean;
+  has_discussions?: boolean;
+  has_issues: boolean;
+  has_projects: boolean;
+  has_wiki: boolean;
+  security_and_analysis?: SecurityAndAnalysis;
+  web_commit_signoff_required?: boolean;
+};
+
+type RewriteTemplateReferencesOptions = {
+  maintainerLogin: string;
+  normalizedRepoName: string;
+};
+
+type JsonObject = Record<string, unknown>;
+
+function main(): void {
   const options = parseArguments(process.argv.slice(2));
 
-  if (options.help) {
+  if (options.help === true) {
     printHelp();
     return;
   }
@@ -27,10 +103,15 @@ function main() {
   const normalizedRepoName = normalizeRepositoryName(targetRepoName);
 
   logStep(`Bootstrapping ${targetRepo} from ${sourceRepo}`);
-  logInfo(`Using GitHub maintainer login ${maintainerLogin} for local owner references.`);
+  logInfo(
+    `Using GitHub maintainer login ${maintainerLogin} for local owner references.`,
+  );
 
   const sourceRepository = getRepositoryDetails(sourceRepo);
-  const sourceBranchProtection = getBranchProtection(sourceRepo, sourceRepository.default_branch);
+  const sourceBranchProtection = getBranchProtection(
+    sourceRepo,
+    sourceRepository.default_branch,
+  );
   const sourceVulnerabilityAlertsEnabled = isFeatureEnabled(
     `repos/${sourceRepo}/vulnerability-alerts`,
   );
@@ -45,7 +126,11 @@ function main() {
   syncAutomatedSecurityFixes(targetRepo, sourceAutomatedSecurityFixesEnabled);
   syncLabels(sourceRepo, targetRepo);
   syncAutolinks(targetRepo, sourceAutolinks);
-  syncBranchProtection(targetRepo, sourceRepository.default_branch, sourceBranchProtection);
+  syncBranchProtection(
+    targetRepo,
+    sourceRepository.default_branch,
+    sourceBranchProtection,
+  );
   rewriteTemplateReferences({
     maintainerLogin,
     normalizedRepoName,
@@ -54,11 +139,11 @@ function main() {
   logSuccess("Bootstrap complete.");
 }
 
-function parseArguments(arguments_) {
-  const options = {};
+function parseArguments(args: string[]): BootstrapOptions {
+  const options: BootstrapOptions = {};
 
-  for (let index = 0; index < arguments_.length; index += 1) {
-    const argument = arguments_[index];
+  for (let index = 0; index < args.length; index += 1) {
+    const argument = args[index];
 
     if (argument === "--help" || argument === "-h") {
       options.help = true;
@@ -71,7 +156,7 @@ function parseArguments(arguments_) {
     }
 
     if (argument === "--source") {
-      options.source = arguments_[index + 1];
+      options.source = getRequiredArgumentValue(args, index, "--source");
       index += 1;
       continue;
     }
@@ -82,7 +167,7 @@ function parseArguments(arguments_) {
     }
 
     if (argument === "--repo") {
-      options.repo = arguments_[index + 1];
+      options.repo = getRequiredArgumentValue(args, index, "--repo");
       index += 1;
       continue;
     }
@@ -93,7 +178,11 @@ function parseArguments(arguments_) {
     }
 
     if (argument === "--maintainer") {
-      options.maintainer = arguments_[index + 1];
+      options.maintainer = getRequiredArgumentValue(
+        args,
+        index,
+        "--maintainer",
+      );
       index += 1;
       continue;
     }
@@ -104,7 +193,21 @@ function parseArguments(arguments_) {
   return options;
 }
 
-function printHelp() {
+function getRequiredArgumentValue(
+  args: string[],
+  index: number,
+  flag: string,
+): string {
+  const value = args[index + 1];
+
+  if (value === undefined || value.length === 0 || value.startsWith("--")) {
+    throw new Error(`Missing value for ${flag}`);
+  }
+
+  return value;
+}
+
+function printHelp(): void {
   process.stdout.write(`Bootstrap a repo created from this template.
 
 Usage:
@@ -124,7 +227,7 @@ Notes:
 `);
 }
 
-function ensureCommand(command) {
+function ensureCommand(command: string): void {
   try {
     execFileSync("bash", ["-lc", `command -v ${command}`], {
       cwd: process.cwd(),
@@ -136,7 +239,7 @@ function ensureCommand(command) {
   }
 }
 
-function inferTargetRepo() {
+function inferTargetRepo(): string {
   const remoteUrl = runCommand("git", ["remote", "get-url", "origin"]).trim();
   const parsedRepository = parseRepositoryFromRemoteUrl(remoteUrl);
 
@@ -149,7 +252,7 @@ function inferTargetRepo() {
   return parsedRepository;
 }
 
-function parseRepositoryFromRemoteUrl(remoteUrl) {
+function parseRepositoryFromRemoteUrl(remoteUrl: string): string | null {
   const patterns = [
     /^https:\/\/github\.com\/(?<owner>[^/]+)\/(?<repo>[^/]+?)(?:\.git)?$/,
     /^git@github\.com:(?<owner>[^/]+)\/(?<repo>[^/]+?)(?:\.git)?$/,
@@ -158,16 +261,23 @@ function parseRepositoryFromRemoteUrl(remoteUrl) {
 
   for (const pattern of patterns) {
     const match = remoteUrl.match(pattern);
+    const owner = match?.groups?.owner;
+    const repo = match?.groups?.repo;
 
-    if (match?.groups?.owner && match.groups.repo) {
-      return `${match.groups.owner}/${match.groups.repo}`;
+    if (
+      owner !== undefined &&
+      owner.length > 0 &&
+      repo !== undefined &&
+      repo.length > 0
+    ) {
+      return `${owner}/${repo}`;
     }
   }
 
   return null;
 }
 
-function getAuthenticatedGitHubLogin() {
+function getAuthenticatedGitHubLogin(): string {
   try {
     return ghApiText(["api", "user", "--jq", ".login"]).trim();
   } catch (error) {
@@ -175,37 +285,45 @@ function getAuthenticatedGitHubLogin() {
       [
         "gh authentication is required before bootstrapping.",
         "Run `gh auth login -h github.com` and try again.",
-        `Original error: ${error.message}`,
+        `Original error: ${formatError(error)}`,
       ].join(" "),
     );
   }
 }
 
-function getRepositoryDetails(repository) {
+function getRepositoryDetails(repository: string): RepositoryDetails {
   const output = ghApiText(["api", `repos/${repository}`]);
-  return JSON.parse(output);
+  return JSON.parse(output) as RepositoryDetails;
 }
 
-function getBranchProtection(repository, branch) {
-  const result = runCommandResult("gh", ["api", `repos/${repository}/branches/${branch}/protection`]);
+function getBranchProtection(
+  repository: string,
+  branch: string,
+): BranchProtection | null {
+  const result = runCommandResult("gh", [
+    "api",
+    `repos/${repository}/branches/${branch}/protection`,
+  ]);
 
   if (result.status === 0) {
-    return JSON.parse(result.stdout);
+    return JSON.parse(result.stdout) as BranchProtection;
   }
 
   if (isNotFoundResult(result)) {
     return null;
   }
 
-  throw new Error(`Failed to read branch protection for ${repository}:${branch}: ${result.stderr}`);
+  throw new Error(
+    `Failed to read branch protection for ${repository}:${branch}: ${result.stderr}`,
+  );
 }
 
-function getAutolinks(repository) {
+function getAutolinks(repository: string): Autolink[] {
   const output = ghApiText(["api", `repos/${repository}/autolinks`]);
-  return JSON.parse(output);
+  return JSON.parse(output) as Autolink[];
 }
 
-function isFeatureEnabled(endpoint) {
+function isFeatureEnabled(endpoint: string): boolean {
   const result = runCommandResult("gh", ["api", "-i", endpoint]);
 
   if (result.status === 0) {
@@ -219,7 +337,10 @@ function isFeatureEnabled(endpoint) {
   throw new Error(`Failed to inspect ${endpoint}: ${result.stderr}`);
 }
 
-function applyRepositorySettings(targetRepository, sourceRepository) {
+function applyRepositorySettings(
+  targetRepository: string,
+  sourceRepository: RepositoryDetails,
+): void {
   logStep("Applying repository settings");
 
   const arguments_ = [
@@ -242,22 +363,32 @@ function applyRepositorySettings(targetRepository, sourceRepository) {
 
   runCommand("gh", arguments_);
 
-  const apiPayload = {
+  const apiPayload: JsonObject = {
     allow_forking: Boolean(sourceRepository.allow_forking),
-    web_commit_signoff_required: Boolean(sourceRepository.web_commit_signoff_required),
+    web_commit_signoff_required: Boolean(
+      sourceRepository.web_commit_signoff_required,
+    ),
   };
 
   ghApiWithBody("PATCH", `repos/${targetRepository}`, apiPayload);
 }
 
-function applySecurityFeatures(targetRepository, securityAndAnalysis) {
-  if (!securityAndAnalysis || Object.keys(securityAndAnalysis).length === 0) {
+function applySecurityFeatures(
+  targetRepository: string,
+  securityAndAnalysis?: SecurityAndAnalysis,
+): void {
+  if (
+    securityAndAnalysis === undefined ||
+    Object.keys(securityAndAnalysis).length === 0
+  ) {
     return;
   }
 
   logStep("Applying code security settings");
 
-  for (const [settingName, settingValue] of Object.entries(securityAndAnalysis)) {
+  for (const [settingName, settingValue] of Object.entries(
+    securityAndAnalysis,
+  )) {
     try {
       ghApiWithBody("PATCH", `repos/${targetRepository}`, {
         security_and_analysis: {
@@ -276,7 +407,10 @@ function applySecurityFeatures(targetRepository, securityAndAnalysis) {
   }
 }
 
-function syncVulnerabilityAlerts(targetRepository, isEnabled) {
+function syncVulnerabilityAlerts(
+  targetRepository: string,
+  isEnabled: boolean,
+): void {
   logStep(`${isEnabled ? "Enabling" : "Disabling"} vulnerability alerts`);
   runCommand("gh", [
     "api",
@@ -286,7 +420,10 @@ function syncVulnerabilityAlerts(targetRepository, isEnabled) {
   ]);
 }
 
-function syncAutomatedSecurityFixes(targetRepository, isEnabled) {
+function syncAutomatedSecurityFixes(
+  targetRepository: string,
+  isEnabled: boolean,
+): void {
   logStep(`${isEnabled ? "Enabling" : "Disabling"} automated security fixes`);
   runCommand("gh", [
     "api",
@@ -296,12 +433,19 @@ function syncAutomatedSecurityFixes(targetRepository, isEnabled) {
   ]);
 }
 
-function syncLabels(sourceRepository, targetRepository) {
+function syncLabels(sourceRepository: string, targetRepository: string): void {
   logStep("Syncing labels");
-  runCommand("gh", ["label", "clone", sourceRepository, "--repo", targetRepository, "--force"]);
+  runCommand("gh", [
+    "label",
+    "clone",
+    sourceRepository,
+    "--repo",
+    targetRepository,
+    "--force",
+  ]);
 }
 
-function syncAutolinks(targetRepository, autolinks) {
+function syncAutolinks(targetRepository: string, autolinks: Autolink[]): void {
   if (autolinks.length === 0) {
     logInfo("No autolinks configured in the template repository.");
     return;
@@ -310,16 +454,16 @@ function syncAutolinks(targetRepository, autolinks) {
   logStep("Syncing autolinks");
 
   for (const autolink of autolinks) {
-    const payload = {
+    const payload: JsonObject = {
+      is_alphanumeric: autolink.is_alphanumeric,
       key_prefix: autolink.key_prefix,
       url_template: autolink.url_template,
-      is_alphanumeric: autolink.is_alphanumeric,
     };
 
     try {
       ghApiWithBody("POST", `repos/${targetRepository}/autolinks`, payload);
     } catch (error) {
-      if (String(error.message).includes("already_exists")) {
+      if (formatError(error).includes("already_exists")) {
         continue;
       }
 
@@ -328,59 +472,80 @@ function syncAutolinks(targetRepository, autolinks) {
   }
 }
 
-function syncBranchProtection(targetRepository, branch, branchProtection) {
+function syncBranchProtection(
+  targetRepository: string,
+  branch: string,
+  branchProtection: BranchProtection | null,
+): void {
   if (branchProtection === null) {
-    logInfo(`No branch protection is configured on ${branch} in the template repository.`);
+    logInfo(
+      `No branch protection is configured on ${branch} in the template repository.`,
+    );
     return;
   }
 
   logStep(`Syncing branch protection for ${branch}`);
 
-  const pullRequestReviews = branchProtection.required_pull_request_reviews
-    ? {
-        dismiss_stale_reviews: branchProtection.required_pull_request_reviews.dismiss_stale_reviews,
-        require_code_owner_reviews:
-          branchProtection.required_pull_request_reviews.require_code_owner_reviews,
-        require_last_push_approval:
-          branchProtection.required_pull_request_reviews.require_last_push_approval,
-        required_approving_review_count:
-          branchProtection.required_pull_request_reviews.required_approving_review_count,
-        dismissal_restrictions: {
-          users: [],
-          teams: [],
-          apps: [],
-        },
-        bypass_pull_request_allowances: {
-          users: [],
-          teams: [],
-          apps: [],
-        },
-      }
-    : null;
-
-  const payload = {
-    required_status_checks: branchProtection.required_status_checks
+  const pullRequestReviews =
+    branchProtection.required_pull_request_reviews !== null
       ? {
-          strict: branchProtection.required_status_checks.strict,
-          contexts: branchProtection.required_status_checks.contexts,
+          bypass_pull_request_allowances: {
+            apps: [],
+            teams: [],
+            users: [],
+          },
+          dismissal_restrictions: {
+            apps: [],
+            teams: [],
+            users: [],
+          },
+          dismiss_stale_reviews:
+            branchProtection.required_pull_request_reviews
+              .dismiss_stale_reviews,
+          require_code_owner_reviews:
+            branchProtection.required_pull_request_reviews
+              .require_code_owner_reviews,
+          require_last_push_approval:
+            branchProtection.required_pull_request_reviews
+              .require_last_push_approval,
+          required_approving_review_count:
+            branchProtection.required_pull_request_reviews
+              .required_approving_review_count,
         }
-      : null,
-    enforce_admins: branchProtection.enforce_admins.enabled,
-    required_pull_request_reviews: pullRequestReviews,
-    restrictions: null,
-    required_linear_history: branchProtection.required_linear_history.enabled,
-    allow_force_pushes: branchProtection.allow_force_pushes.enabled,
+      : null;
+
+  const payload: JsonObject = {
     allow_deletions: branchProtection.allow_deletions.enabled,
-    block_creations: branchProtection.block_creations.enabled,
-    required_conversation_resolution: branchProtection.required_conversation_resolution.enabled,
-    lock_branch: branchProtection.lock_branch.enabled,
+    allow_force_pushes: branchProtection.allow_force_pushes.enabled,
     allow_fork_syncing: branchProtection.allow_fork_syncing.enabled,
+    block_creations: branchProtection.block_creations.enabled,
+    enforce_admins: branchProtection.enforce_admins.enabled,
+    lock_branch: branchProtection.lock_branch.enabled,
+    required_conversation_resolution:
+      branchProtection.required_conversation_resolution.enabled,
+    required_linear_history: branchProtection.required_linear_history.enabled,
+    required_pull_request_reviews: pullRequestReviews,
+    required_status_checks:
+      branchProtection.required_status_checks !== null
+        ? {
+            contexts: branchProtection.required_status_checks.contexts,
+            strict: branchProtection.required_status_checks.strict,
+          }
+        : null,
+    restrictions: null,
   };
 
-  ghApiWithBody("PUT", `repos/${targetRepository}/branches/${branch}/protection`, payload);
+  ghApiWithBody(
+    "PUT",
+    `repos/${targetRepository}/branches/${branch}/protection`,
+    payload,
+  );
 }
 
-function rewriteTemplateReferences({ maintainerLogin, normalizedRepoName }) {
+function rewriteTemplateReferences({
+  maintainerLogin,
+  normalizedRepoName,
+}: RewriteTemplateReferencesOptions): void {
   logStep("Updating local template references");
 
   replaceAllInFile(".github/CODEOWNERS", /@[\w-]+/g, `@${maintainerLogin}`);
@@ -389,15 +554,19 @@ function rewriteTemplateReferences({ maintainerLogin, normalizedRepoName }) {
     /https:\/\/github\.com\/[A-Za-z0-9-]+/g,
     `https://github.com/${maintainerLogin}`,
   );
-  replaceFirstInFile("package.json", /"name": "[^"]+"/, `"name": "${normalizedRepoName}"`);
   replaceFirstInFile(
-    "package-lock.json",
-    /^  "name": "[^"]+"/m,
+    "package.json",
+    /"name": "[^"]+"/,
     `"name": "${normalizedRepoName}"`,
   );
   replaceFirstInFile(
     "package-lock.json",
-    /^      "name": "[^"]+"/m,
+    /^[ ]{2}"name": "[^"]+"/m,
+    `"name": "${normalizedRepoName}"`,
+  );
+  replaceFirstInFile(
+    "package-lock.json",
+    /^[ ]{6}"name": "[^"]+"/m,
     `"name": "${normalizedRepoName}"`,
   );
   replaceFirstInFile(
@@ -405,13 +574,33 @@ function rewriteTemplateReferences({ maintainerLogin, normalizedRepoName }) {
     /^project_id = ".*"$/m,
     `project_id = "${normalizedRepoName}"`,
   );
-  replaceAllInFile("SECURITY.md", new RegExp(TEMPLATE_USER_LOGIN, "g"), maintainerLogin);
-  replaceAllInFile("package.json", new RegExp(TEMPLATE_REPO_NAME, "g"), normalizedRepoName);
-  replaceAllInFile("package-lock.json", new RegExp(TEMPLATE_REPO_NAME, "g"), normalizedRepoName);
-  replaceAllInFile("supabase/config.toml", new RegExp(TEMPLATE_REPO_NAME, "g"), normalizedRepoName);
+  replaceAllInFile(
+    "SECURITY.md",
+    new RegExp(TEMPLATE_USER_LOGIN, "g"),
+    maintainerLogin,
+  );
+  replaceAllInFile(
+    "package.json",
+    new RegExp(TEMPLATE_REPO_NAME, "g"),
+    normalizedRepoName,
+  );
+  replaceAllInFile(
+    "package-lock.json",
+    new RegExp(TEMPLATE_REPO_NAME, "g"),
+    normalizedRepoName,
+  );
+  replaceAllInFile(
+    "supabase/config.toml",
+    new RegExp(TEMPLATE_REPO_NAME, "g"),
+    normalizedRepoName,
+  );
 }
 
-function replaceFirstInFile(filePath, pattern, replacement) {
+function replaceFirstInFile(
+  filePath: string,
+  pattern: RegExp,
+  replacement: string,
+): void {
   if (!fs.existsSync(filePath)) {
     return;
   }
@@ -424,7 +613,11 @@ function replaceFirstInFile(filePath, pattern, replacement) {
   }
 }
 
-function replaceAllInFile(filePath, pattern, replacement) {
+function replaceAllInFile(
+  filePath: string,
+  pattern: RegExp,
+  replacement: string,
+): void {
   if (!fs.existsSync(filePath)) {
     return;
   }
@@ -437,7 +630,7 @@ function replaceAllInFile(filePath, pattern, replacement) {
   }
 }
 
-function normalizeRepositoryName(repositoryName) {
+function normalizeRepositoryName(repositoryName: string): string {
   const normalized = repositoryName
     .trim()
     .toLowerCase()
@@ -446,14 +639,22 @@ function normalizeRepositoryName(repositoryName) {
     .replace(/^-+|-+$/g, "");
 
   if (normalized.length === 0) {
-    throw new Error(`Could not derive a valid local name from repository ${repositoryName}`);
+    throw new Error(
+      `Could not derive a valid local name from repository ${repositoryName}`,
+    );
   }
 
   return normalized;
 }
 
-function ghApiWithBody(method, endpoint, body) {
-  const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "repo-bootstrap-"));
+function ghApiWithBody(
+  method: string,
+  endpoint: string,
+  body: JsonObject,
+): void {
+  const temporaryDirectory = fs.mkdtempSync(
+    path.join(os.tmpdir(), "repo-bootstrap-"),
+  );
   const inputPath = path.join(temporaryDirectory, "body.json");
 
   fs.writeFileSync(inputPath, JSON.stringify(body, null, 2));
@@ -465,40 +666,50 @@ function ghApiWithBody(method, endpoint, body) {
   }
 }
 
-function ghApiText(arguments_) {
-  return runCommand("gh", arguments_);
+function ghApiText(args: string[]): string {
+  return runCommand("gh", args);
 }
 
-function runCommand(command, arguments_) {
-  const result = runCommandResult(command, arguments_);
+function runCommand(command: string, args: string[]): string {
+  const result = runCommandResult(command, args);
 
   if (result.status !== 0) {
-    throw new Error(result.stderr || result.stdout || `${command} exited with status ${result.status}`);
+    const errorMessage =
+      result.stderr.length > 0
+        ? result.stderr
+        : result.stdout.length > 0
+          ? result.stdout
+          : `${command} exited with status ${result.status}`;
+    throw new Error(errorMessage);
   }
 
   return result.stdout;
 }
 
-function runCommandResult(command, arguments_) {
-  const result = spawnSync(command, arguments_, {
+function runCommandResult(command: string, args: string[]): CommandResult {
+  const result = spawnSync(command, args, {
     cwd: process.cwd(),
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
   });
+  const errorMessage =
+    result.error !== undefined ? result.error.message : undefined;
+  const stderr = result.stderr ?? "";
 
   return {
-    status: result.status ?? (result.error ? 1 : 0),
+    status: result.status ?? (result.error !== undefined ? 1 : 0),
+    stderr:
+      errorMessage !== undefined ? `${stderr}\n${errorMessage}`.trim() : stderr,
     stdout: result.stdout ?? "",
-    stderr: result.error?.message ? `${result.stderr ?? ""}\n${result.error.message}`.trim() : result.stderr ?? "",
   };
 }
 
-function isNotFoundResult(result) {
+function isNotFoundResult(result: CommandResult): boolean {
   const combinedOutput = `${result.stdout}\n${result.stderr}`;
   return /\b404\b/.test(combinedOutput) || /Not Found/i.test(combinedOutput);
 }
 
-function formatError(error) {
+function formatError(error: unknown): string {
   if (error instanceof Error) {
     return error.message;
   }
@@ -506,19 +717,19 @@ function formatError(error) {
   return String(error);
 }
 
-function logStep(message) {
+function logStep(message: string): void {
   process.stdout.write(`\n[bootstrap] ${message}\n`);
 }
 
-function logInfo(message) {
+function logInfo(message: string): void {
   process.stdout.write(`[bootstrap] ${message}\n`);
 }
 
-function logWarn(message) {
+function logWarn(message: string): void {
   process.stderr.write(`[bootstrap] Warning: ${message}\n`);
 }
 
-function logSuccess(message) {
+function logSuccess(message: string): void {
   process.stdout.write(`[bootstrap] ${message}\n`);
 }
 

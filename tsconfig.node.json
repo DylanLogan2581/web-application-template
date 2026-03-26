@@ -25,6 +25,7 @@
   "include": [
     "vite.config.ts",
     "eslint.config.ts",
-    "eslint-plugin-jsx-a11y.d.ts"
+    "eslint-plugin-jsx-a11y.d.ts",
+    "scripts/**/*.ts"
   ]
 }
