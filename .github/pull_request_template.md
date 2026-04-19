@@ -36,6 +36,7 @@ Notes:
 - [ ] No doc updates needed
 - [ ] README updated
 - [ ] AGENTS updated
+- [ ] CONTRIBUTING updated
 - [ ] Other docs updated
 
 ## Reviewer Notes
