@@ -1,10 +1,9 @@
 import js from "@eslint/js";
+import eslintReact from "@eslint-react/eslint-plugin";
 import tanstackQuery from "@tanstack/eslint-plugin-query";
 import { defineConfig, globalIgnores } from "eslint/config";
 import { createConfig as createBoundariesConfig } from "eslint-plugin-boundaries/config";
-import importPlugin from "eslint-plugin-import";
-import jsxA11y from "eslint-plugin-jsx-a11y";
-import react from "eslint-plugin-react";
+import importX from "eslint-plugin-import-x";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import unicorn from "eslint-plugin-unicorn";
@@ -197,13 +196,11 @@ export default defineConfig([
       tseslint.configs.recommendedTypeChecked,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
+      eslintReact.configs["recommended-typescript"],
     ],
     plugins: {
       "@tanstack/query": tanstackQuery as unknown as ESLint.Plugin,
-      import: importPlugin,
-      "jsx-a11y": jsxA11y,
-      react,
-      reactHooks: reactHooks as unknown as ESLint.Plugin,
+      "import-x": importX as unknown as ESLint.Plugin,
       unicorn,
       "unused-imports": unusedImports,
     },
@@ -216,29 +213,26 @@ export default defineConfig([
       },
     },
     settings: {
-      "import/resolver": {
+      "import-x/resolver": {
         typescript: {
           noWarnOnMultipleProjects: true,
           project: ["./tsconfig.app.json", "./tsconfig.node.json"],
         },
       },
-      react: {
-        version: "detect",
-      },
     },
     rules: {
       eqeqeq: ["error", "always"],
       curly: ["error", "all"],
-      "import/newline-after-import": ["error", { count: 1 }],
-      "import/no-cycle": "error",
-      "import/no-duplicates": "error",
-      "import/no-internal-modules": [
+      "import-x/newline-after-import": ["error", { count: 1 }],
+      "import-x/no-cycle": "error",
+      "import-x/no-duplicates": "error",
+      "import-x/no-internal-modules": [
         "error",
         {
-          forbid: ["@/features/*/**"],
+          forbid: ["@/features/*/*", "@/features/*/**/*"],
         },
       ],
-      "import/order": [
+      "import-x/order": [
         "error",
         {
           alphabetize: {
@@ -382,23 +376,7 @@ export default defineConfig([
           allowString: false,
         },
       ],
-      "jsx-a11y/anchor-has-content": "error",
-      "jsx-a11y/anchor-is-valid": "error",
-      "jsx-a11y/aria-role": "error",
-      "jsx-a11y/click-events-have-key-events": "error",
-      "jsx-a11y/heading-has-content": "error",
-      "jsx-a11y/label-has-associated-control": "error",
-      "jsx-a11y/no-static-element-interactions": "error",
-      "react/function-component-definition": [
-        "error",
-        {
-          namedComponents: "function-declaration",
-          unnamedComponents: "arrow-function",
-        },
-      ],
-      "react/jsx-pascal-case": "error",
-      "react/jsx-no-useless-fragment": "error",
-      "react/self-closing-comp": "error",
+      "@eslint-react/jsx-no-useless-fragment": "error",
       "react-hooks/exhaustive-deps": "error",
     },
   },

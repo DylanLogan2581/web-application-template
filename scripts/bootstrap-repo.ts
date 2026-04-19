@@ -285,6 +285,7 @@ function getAuthenticatedGitHubLogin(): string {
         "Run `gh auth login -h github.com` and try again.",
         `Original error: ${formatError(error)}`,
       ].join(" "),
+      { cause: error },
     );
   }
 }
@@ -534,6 +535,7 @@ function syncBranchProtection(
         formatError(error),
         `Payload: ${JSON.stringify(payload)}`,
       ].join(" "),
+      { cause: error },
     );
   }
 }

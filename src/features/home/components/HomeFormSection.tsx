@@ -53,9 +53,8 @@ export function HomeFormSection(): JSX.Element {
           void form.handleSubmit();
         }}
       >
-        <form.Field
-          name="name"
-          children={(field) => (
+        <form.Field name="name">
+          {(field) => (
             <label className="flex flex-1 flex-col gap-2">
               <span className="text-sm text-muted-foreground">Name</span>
               <input
@@ -77,16 +76,17 @@ export function HomeFormSection(): JSX.Element {
               </span>
             </label>
           )}
-        />
+        </form.Field>
 
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting] as const}
-          children={([canSubmit, isSubmitting]) => (
+        >
+          {([canSubmit, isSubmitting]) => (
             <Button className="sm:mt-7" disabled={!canSubmit}>
               {isSubmitting ? "Saving..." : "Submit"}
             </Button>
           )}
-        />
+        </form.Subscribe>
       </form>
 
       <p className="mt-3 text-sm text-muted-foreground">
