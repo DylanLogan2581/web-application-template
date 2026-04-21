@@ -34,6 +34,12 @@ function RootLayout(): JSX.Element {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="relative min-h-screen overflow-hidden bg-background">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
+        >
+          Skip to main content
+        </a>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-linear-to-b from-muted/60 via-background to-transparent" />
         <div className="pointer-events-none absolute left-1/2 -top-32 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/8 blur-3xl" />
 
@@ -55,7 +61,10 @@ function RootLayout(): JSX.Element {
                   </div>
                 </div>
 
-                <nav className="flex flex-wrap items-center gap-2">
+                <nav
+                  aria-label="Primary navigation"
+                  className="flex flex-wrap items-center gap-2"
+                >
                   <Button asChild variant="ghost" size="sm">
                     <Link
                       to="/"
@@ -78,9 +87,9 @@ function RootLayout(): JSX.Element {
             </div>
           </header>
 
-          <div className="flex-1 py-4">
+          <main id="main-content" className="flex-1 py-4">
             <Outlet />
-          </div>
+          </main>
 
           <footer className="py-6">
             <div className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/70 px-4 py-4 text-sm shadow-sm sm:flex-row sm:items-center sm:justify-between">

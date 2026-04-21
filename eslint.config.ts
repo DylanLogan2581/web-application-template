@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import eslintReact from "@eslint-react/eslint-plugin";
 import tanstackQuery from "@tanstack/eslint-plugin-query";
 import { defineConfig, globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier";
 import { createConfig as createBoundariesConfig } from "eslint-plugin-boundaries/config";
 import importX from "eslint-plugin-import-x";
 import reactHooks from "eslint-plugin-react-hooks";
@@ -187,6 +188,151 @@ const boundariesConfig = createBoundariesConfig({
   },
 });
 
+const commonRestrictedSyntax = [
+  {
+    selector: "ForInStatement",
+    message:
+      "Avoid for...in. Prefer Object.keys, Object.entries, or for...of over explicit collections.",
+  },
+  {
+    selector: "TSEnumDeclaration",
+    message: "Prefer union types or as const objects over enums in app code.",
+  },
+  {
+    selector:
+      "CallExpression[callee.object.name='console'][callee.property.name='log']",
+    message:
+      "Avoid console.log in app code. Use intentional UI state, devtools, or structured logging instead.",
+  },
+  {
+    selector: "WithStatement",
+    message: "Do not use with statements.",
+  },
+];
+
+const appRestrictedSyntax = [
+  ...commonRestrictedSyntax,
+  {
+    selector: "CallExpression[callee.name='createClient']",
+    message: "Create the Supabase client only in src/lib/supabase.ts.",
+  },
+  {
+    selector: "NewExpression[callee.name='QueryClient']",
+    message: "Create QueryClient only in the approved root/provider setup.",
+  },
+  {
+    selector: "JSXOpeningElement[name.name='QueryClientProvider']",
+    message:
+      "Render QueryClientProvider only in the approved root/provider setup.",
+  },
+  {
+    selector:
+      "AssignmentExpression[left.object.object.name='window'][left.object.property.name='location']",
+    message:
+      "Avoid writing to window.location directly. Prefer router navigation.",
+  },
+  {
+    selector: "AssignmentExpression[left.object.name='location']",
+    message: "Avoid writing to location directly. Prefer router navigation.",
+  },
+  {
+    selector:
+      "CallExpression[callee.object.name='window'][callee.property.name='localStorage']",
+    message:
+      "Do not access localStorage directly in app code. Use a dedicated persistence helper layer.",
+  },
+  {
+    selector:
+      "MemberExpression[object.name='window'][property.name='localStorage']",
+    message:
+      "Do not access localStorage directly in app code. Use a dedicated persistence helper layer.",
+  },
+  {
+    selector: "MemberExpression[object.name='localStorage']",
+    message:
+      "Do not access localStorage directly in app code. Use a dedicated persistence helper layer.",
+  },
+  {
+    selector:
+      "CallExpression[callee.object.name='Date'][callee.property.name='now']",
+    message:
+      "Avoid Date.now() in app code. Prefer injecting time through a helper for testability.",
+  },
+  {
+    selector: "NewExpression[callee.name='Date']",
+    message:
+      "Avoid new Date() in app code. Prefer injecting time through a helper for testability.",
+  },
+  {
+    selector:
+      "CallExpression[callee.object.name='Math'][callee.property.name='random']",
+    message:
+      "Avoid Math.random() in app code. Prefer a dedicated random helper or deterministic input.",
+  },
+];
+
+const routeAndComponentRestrictedSyntax = [
+  ...commonRestrictedSyntax,
+  {
+    selector: "CallExpression[callee.name='fetch']",
+    message:
+      "Do not call fetch directly in routes or components. Use feature query modules instead.",
+  },
+  {
+    selector:
+      "CallExpression[callee.object.name='JSON'][callee.property.name='parse']",
+    message:
+      "Avoid JSON.parse in UI layers. Keep serialization in helpers, queries, or infrastructure modules.",
+  },
+  {
+    selector:
+      "CallExpression[callee.object.name='JSON'][callee.property.name='stringify']",
+    message:
+      "Avoid JSON.stringify in UI layers. Keep serialization in helpers, queries, or infrastructure modules.",
+  },
+  {
+    selector: "CallExpression[callee.name='setTimeout']",
+    message:
+      "Avoid raw setTimeout in components and routes. Prefer a dedicated hook or cleanup-aware abstraction.",
+  },
+  {
+    selector: "CallExpression[callee.name='setInterval']",
+    message:
+      "Avoid raw setInterval in components and routes. Prefer a dedicated hook or cleanup-aware abstraction.",
+  },
+];
+
+const featureComponentRestrictedSyntax = [
+  ...commonRestrictedSyntax,
+  {
+    selector: "CallExpression[callee.name='fetch']",
+    message:
+      "Do not call fetch directly in feature components. Use feature query modules instead.",
+  },
+  {
+    selector:
+      "CallExpression[callee.object.name='JSON'][callee.property.name='parse']",
+    message:
+      "Avoid JSON.parse in feature components. Keep serialization in helpers, queries, or infrastructure modules.",
+  },
+  {
+    selector:
+      "CallExpression[callee.object.name='JSON'][callee.property.name='stringify']",
+    message:
+      "Avoid JSON.stringify in feature components. Keep serialization in helpers, queries, or infrastructure modules.",
+  },
+  {
+    selector: "CallExpression[callee.name='setTimeout']",
+    message:
+      "Avoid raw setTimeout in feature components. Prefer a dedicated hook or cleanup-aware abstraction.",
+  },
+  {
+    selector: "CallExpression[callee.name='setInterval']",
+    message:
+      "Avoid raw setInterval in feature components. Prefer a dedicated hook or cleanup-aware abstraction.",
+  },
+];
+
 export default defineConfig([
   globalIgnores(["dist", "src/routeTree.gen.ts"]),
   {
@@ -272,29 +418,7 @@ export default defineConfig([
           ],
         },
       ],
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector: "ForInStatement",
-          message:
-            "Avoid for...in. Prefer Object.keys, Object.entries, or for...of over explicit collections.",
-        },
-        {
-          selector: "TSEnumDeclaration",
-          message:
-            "Prefer union types or as const objects over enums in app code.",
-        },
-        {
-          selector:
-            "CallExpression[callee.object.name='console'][callee.property.name='log']",
-          message:
-            "Avoid console.log in app code. Use intentional UI state, devtools, or structured logging instead.",
-        },
-        {
-          selector: "WithStatement",
-          message: "Do not use with statements.",
-        },
-      ],
+      "no-restricted-syntax": ["error", ...commonRestrictedSyntax],
       "no-unused-vars": "off",
       "object-shorthand": ["error", "always"],
       "unused-imports/no-unused-imports": "error",
@@ -401,88 +525,7 @@ export default defineConfig([
       "src/lib/queryClient.ts",
     ],
     rules: {
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector: "ForInStatement",
-          message:
-            "Avoid for...in. Prefer Object.keys, Object.entries, or for...of over explicit collections.",
-        },
-        {
-          selector: "TSEnumDeclaration",
-          message:
-            "Prefer union types or as const objects over enums in app code.",
-        },
-        {
-          selector:
-            "CallExpression[callee.object.name='console'][callee.property.name='log']",
-          message:
-            "Avoid console.log in app code. Use intentional UI state, devtools, or structured logging instead.",
-        },
-        {
-          selector: "WithStatement",
-          message: "Do not use with statements.",
-        },
-        {
-          selector: "CallExpression[callee.name='createClient']",
-          message: "Create the Supabase client only in src/lib/supabase.ts.",
-        },
-        {
-          selector: "NewExpression[callee.name='QueryClient']",
-          message:
-            "Create QueryClient only in the approved root/provider setup.",
-        },
-        {
-          selector: "JSXOpeningElement[name.name='QueryClientProvider']",
-          message:
-            "Render QueryClientProvider only in the approved root/provider setup.",
-        },
-        {
-          selector:
-            "AssignmentExpression[left.object.object.name='window'][left.object.property.name='location']",
-          message:
-            "Avoid writing to window.location directly. Prefer router navigation.",
-        },
-        {
-          selector: "AssignmentExpression[left.object.name='location']",
-          message:
-            "Avoid writing to location directly. Prefer router navigation.",
-        },
-        {
-          selector:
-            "CallExpression[callee.object.name='window'][callee.property.name='localStorage']",
-          message:
-            "Do not access localStorage directly in app code. Use a dedicated persistence helper layer.",
-        },
-        {
-          selector:
-            "MemberExpression[object.name='window'][property.name='localStorage']",
-          message:
-            "Do not access localStorage directly in app code. Use a dedicated persistence helper layer.",
-        },
-        {
-          selector: "MemberExpression[object.name='localStorage']",
-          message:
-            "Do not access localStorage directly in app code. Use a dedicated persistence helper layer.",
-        },
-        {
-          selector:
-            "CallExpression[callee.object.name='Date'][callee.property.name='now']",
-          message:
-            "Avoid Date.now() in app code. Prefer injecting time through a helper for testability.",
-        },
-        {
-          selector: "NewExpression[callee.name='Date']",
-          message:
-            "Avoid new Date() in app code. Prefer injecting time through a helper for testability.",
-        },
-        {
-          selector:
-            "CallExpression[callee.object.name='Math'][callee.property.name='random']",
-          message:
-            "Avoid Math.random() in app code. Prefer a dedicated random helper or deterministic input.",
-        },
-      ],
+      "no-restricted-syntax": ["error", ...appRestrictedSyntax],
     },
   },
   {
@@ -592,56 +635,7 @@ export default defineConfig([
           ],
         },
       ],
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector: "ForInStatement",
-          message:
-            "Avoid for...in. Prefer Object.keys, Object.entries, or for...of over explicit collections.",
-        },
-        {
-          selector: "TSEnumDeclaration",
-          message:
-            "Prefer union types or as const objects over enums in app code.",
-        },
-        {
-          selector:
-            "CallExpression[callee.object.name='console'][callee.property.name='log']",
-          message:
-            "Avoid console.log in app code. Use intentional UI state, devtools, or structured logging instead.",
-        },
-        {
-          selector: "WithStatement",
-          message: "Do not use with statements.",
-        },
-        {
-          selector: "CallExpression[callee.name='fetch']",
-          message:
-            "Do not call fetch directly in routes or components. Use feature query modules instead.",
-        },
-        {
-          selector:
-            "CallExpression[callee.object.name='JSON'][callee.property.name='parse']",
-          message:
-            "Avoid JSON.parse in UI layers. Keep serialization in helpers, queries, or infrastructure modules.",
-        },
-        {
-          selector:
-            "CallExpression[callee.object.name='JSON'][callee.property.name='stringify']",
-          message:
-            "Avoid JSON.stringify in UI layers. Keep serialization in helpers, queries, or infrastructure modules.",
-        },
-        {
-          selector: "CallExpression[callee.name='setTimeout']",
-          message:
-            "Avoid raw setTimeout in components and routes. Prefer a dedicated hook or cleanup-aware abstraction.",
-        },
-        {
-          selector: "CallExpression[callee.name='setInterval']",
-          message:
-            "Avoid raw setInterval in components and routes. Prefer a dedicated hook or cleanup-aware abstraction.",
-        },
-      ],
+      "no-restricted-syntax": ["error", ...routeAndComponentRestrictedSyntax],
     },
   },
   {
@@ -659,56 +653,7 @@ export default defineConfig([
           ],
         },
       ],
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector: "ForInStatement",
-          message:
-            "Avoid for...in. Prefer Object.keys, Object.entries, or for...of over explicit collections.",
-        },
-        {
-          selector: "TSEnumDeclaration",
-          message:
-            "Prefer union types or as const objects over enums in app code.",
-        },
-        {
-          selector:
-            "CallExpression[callee.object.name='console'][callee.property.name='log']",
-          message:
-            "Avoid console.log in app code. Use intentional UI state, devtools, or structured logging instead.",
-        },
-        {
-          selector: "WithStatement",
-          message: "Do not use with statements.",
-        },
-        {
-          selector: "CallExpression[callee.name='fetch']",
-          message:
-            "Do not call fetch directly in feature components. Use feature query modules instead.",
-        },
-        {
-          selector:
-            "CallExpression[callee.object.name='JSON'][callee.property.name='parse']",
-          message:
-            "Avoid JSON.parse in feature components. Keep serialization in helpers, queries, or infrastructure modules.",
-        },
-        {
-          selector:
-            "CallExpression[callee.object.name='JSON'][callee.property.name='stringify']",
-          message:
-            "Avoid JSON.stringify in feature components. Keep serialization in helpers, queries, or infrastructure modules.",
-        },
-        {
-          selector: "CallExpression[callee.name='setTimeout']",
-          message:
-            "Avoid raw setTimeout in feature components. Prefer a dedicated hook or cleanup-aware abstraction.",
-        },
-        {
-          selector: "CallExpression[callee.name='setInterval']",
-          message:
-            "Avoid raw setInterval in feature components. Prefer a dedicated hook or cleanup-aware abstraction.",
-        },
-      ],
+      "no-restricted-syntax": ["error", ...featureComponentRestrictedSyntax],
     },
   },
   {
@@ -729,6 +674,7 @@ export default defineConfig([
       "react-refresh/only-export-components": "off",
     },
   },
+  eslintConfigPrettier,
   {
     files: ["eslint.config.ts"],
     rules: {
