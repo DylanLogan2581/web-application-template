@@ -34,6 +34,8 @@ If you need Supabase in the browser app, copy `.env.example` to `.env` and set t
 - `npm run build` type-checks and builds the app
 - `npm run test` runs Vitest
 - `npm run preview` serves the production build locally
+- `npm run release:dry` previews the next release without changing files
+- `npm run release` performs a full release and pushes commit + tag
 
 ## Workflow
 
@@ -67,6 +69,16 @@ Good PRs:
 - explain what changed and why
 - describe validation clearly
 - call out schema, security, and environment impact
+
+## Release Workflow
+
+Use an on-demand release flow.
+
+1. Make sure your local `main` is up to date and working tree is clean.
+2. Optional safety check: run `npm run release:dry`.
+3. Run `npm run release`.
+
+That single command updates `package.json`/lockfile and `CHANGELOG.md`, creates a release commit and tag, and pushes both. A pushed `v*` tag then triggers `.github/workflows/tag-release.yml` to create the GitHub Release.
 
 ## Code Expectations
 

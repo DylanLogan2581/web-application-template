@@ -171,6 +171,14 @@ This template ships GitHub and commit conventions meant for downstream app repos
 - required `Lint` and `Build` checks
 - CODEOWNERS review
 
+Release behavior in this template is on-demand:
+
+- `npm run release:dry`: preview release output
+- `npm run release`: update version/changelog, create release commit + tag, and push
+- pushed `v*` tags trigger `.github/workflows/tag-release.yml` to publish a GitHub Release
+
+Do not implement per-commit version bumps or per-commit tagging automation unless explicitly requested.
+
 When editing the template itself, follow the active user instruction if it differs.
 
 ## Before Finishing

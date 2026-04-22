@@ -45,6 +45,8 @@ VITE_SUPABASE_ANON_KEY=...
 - `npm run lint` runs ESLint, Markdown linting, and SQL formatting checks
 - `npm run preview` serves the production build locally
 - `npm run test` runs Vitest and intentionally passes when the starter has no tests yet
+- `npm run release:dry` previews the next release version and changelog changes
+- `npm run release` creates the release commit and tag, pushes to `main`, and triggers a GitHub Release
 - `npm run prepare` installs Husky hooks
 
 ## Documentation Map
@@ -98,6 +100,8 @@ This template ships automation that downstream projects can keep:
 
 - Husky + lint-staged for pre-commit formatting and linting
 - commitlint for conventional commit messages
+- on-demand release flow via `npm run release` (version bump, changelog update, release commit, and tag)
+- tag-triggered GitHub Release workflow (`.github/workflows/tag-release.yml`)
 - GitHub Actions for lint, build, test, dependency review, workflow linting, and CodeQL
 - CODEOWNERS and PR governance helpers
 
