@@ -22,6 +22,57 @@ Opinionated React + TypeScript starter for product apps that want strong structu
 - Supabase-ready structure with migrations and Edge Functions
 - Repository automation that nudges clean PR and commit hygiene
 
+## Using This Template
+
+After creating a new repo from this template on GitHub:
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/YOUR_ORG/YOUR_REPO.git
+cd YOUR_REPO
+npm install
+```
+
+### 2. Bootstrap the repo
+
+Requires the [GitHub CLI](https://cli.github.com/) (`gh`) authenticated with your account.
+
+```bash
+npm run bootstrap:repo
+```
+
+This applies branch protection, syncs labels, rewrites template references (CODEOWNERS, config files), and copies repository settings from the source template. Run it once, right after cloning.
+
+If your repo lives under a different org or you forked the template, pass explicit flags:
+
+```bash
+npm run bootstrap:repo -- --repo YOUR_ORG/YOUR_REPO
+```
+
+### 3. Configure environment variables
+
+```bash
+cp .env.example .env
+```
+
+Then fill in your Supabase project values:
+
+```bash
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+### 4. Start developing
+
+```bash
+npm run dev
+```
+
+The app runs at `http://localhost:5173`.
+
+---
+
 ## Quick Start
 
 ```bash
@@ -45,6 +96,7 @@ VITE_SUPABASE_ANON_KEY=...
 - `npm run lint` runs ESLint, Markdown linting, and SQL formatting checks
 - `npm run preview` serves the production build locally
 - `npm run test` runs Vitest and intentionally passes when the starter has no tests yet
+- `npm run bootstrap:repo` applies repo settings, branch protection, and labels after creating from the template
 - `npm run release:dry` previews the next release version and changelog changes
 - `npm run release` creates the release commit and tag, pushes to `main`, and triggers a GitHub Release
 - `npm run prepare` installs Husky hooks
