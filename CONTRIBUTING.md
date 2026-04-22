@@ -14,7 +14,7 @@ This guide is for human contributors.
 
 Requirements:
 
-- Node.js 20+
+- Node.js 22+
 - npm 10+
 - Optional: Supabase CLI for local schema, auth, and migration work
 

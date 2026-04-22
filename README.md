@@ -73,22 +73,6 @@ The app runs at `http://localhost:5173`.
 
 ---
 
-## Quick Start
-
-```bash
-npm install
-npm run dev
-```
-
-The app usually runs at `http://localhost:5173`.
-
-If you want Supabase connected in the browser app, copy `.env.example` to `.env` and set:
-
-```bash
-VITE_SUPABASE_URL=...
-VITE_SUPABASE_ANON_KEY=...
-```
-
 ## Scripts
 
 - `npm run dev` starts the Vite dev server
