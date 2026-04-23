@@ -26,6 +26,6 @@ jobs:
 
       - name: Lint GitHub workflows
         run: |
-          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) v1.7.12
           ./actionlint -color
         shell: bash

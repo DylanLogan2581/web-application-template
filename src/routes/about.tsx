@@ -5,7 +5,7 @@ import type { JSX } from "react";
 
 function AboutPage(): JSX.Element {
   return (
-    <main className="mx-auto flex max-w-4xl flex-col gap-6 py-6">
+    <div className="mx-auto flex max-w-4xl flex-col gap-6 py-6">
       <section className="rounded-2xl border bg-card p-6 shadow-sm">
         <p className="text-sm text-muted-foreground">About this starter</p>
         <h1 className="mt-2 text-3xl font-semibold">
@@ -64,7 +64,7 @@ function AboutPage(): JSX.Element {
           people and language models working in the codebase.
         </p>
       </section>
-    </main>
+    </div>
   );
 }
 

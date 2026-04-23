@@ -112,9 +112,13 @@ function RootLayout(): JSX.Element {
           </footer>
         </div>
       </div>
-      {TanStackRouterDevtools !== null && ReactQueryDevtools !== null ? (
+      {TanStackRouterDevtools !== null ? (
         <Suspense fallback={null}>
           <TanStackRouterDevtools />
+        </Suspense>
+      ) : null}
+      {ReactQueryDevtools !== null ? (
+        <Suspense fallback={null}>
           <ReactQueryDevtools />
         </Suspense>
       ) : null}

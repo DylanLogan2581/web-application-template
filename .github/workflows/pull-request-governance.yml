@@ -1,5 +1,10 @@
 name: Pull Request Governance
 
+# pull_request_target runs with write permissions even from forks.
+# This is intentional: the jobs below only read PR metadata (title, number) and
+# do NOT check out untrusted code. Never add a checkout step here unless it is
+# scoped to the base ref (ref: ${{ github.base_ref }}), or you risk arbitrary
+# code execution with elevated permissions.
 on:
   pull_request_target:
     types:

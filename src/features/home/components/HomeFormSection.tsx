@@ -2,7 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 import { homeDemoSchema } from "../schemas/homeDemoSchema";
 
@@ -57,14 +57,8 @@ export function HomeFormSection(): JSX.Element {
           {(field) => (
             <label className="flex flex-1 flex-col gap-2">
               <span className="text-sm text-muted-foreground">Name</span>
-              <input
+              <Input
                 aria-invalid={field.state.meta.errors.length > 0}
-                className={cn(
-                  "h-9 rounded-md border bg-background px-3 outline-none transition",
-                  field.state.meta.errors.length > 0
-                    ? "border-destructive"
-                    : "",
-                )}
                 name={field.name}
                 placeholder="Ada"
                 value={field.state.value}

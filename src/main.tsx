@@ -9,6 +9,7 @@ import "./index.css";
 
 const router = createRouter({
   routeTree,
+  defaultPreload: "intent",
   context: {
     queryClient,
   },

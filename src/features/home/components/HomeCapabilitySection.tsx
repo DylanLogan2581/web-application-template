@@ -28,7 +28,13 @@ export function HomeCapabilitySection(): JSX.Element {
           <Database className="size-4" />
           <h2 className="font-medium">Query + Supabase</h2>
         </div>
-        <p className="text-sm text-muted-foreground">{sessionQuery.data}</p>
+        <p className="text-sm text-muted-foreground">
+          {sessionQuery.isPending
+            ? "Loading..."
+            : sessionQuery.isError
+              ? "Failed to load session."
+              : sessionQuery.data}
+        </p>
       </article>
 
       <article className="rounded-2xl border bg-card p-4 shadow-sm">
