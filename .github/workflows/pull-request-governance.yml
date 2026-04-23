@@ -22,7 +22,6 @@ permissions:
 jobs:
   validate-title:
     name: Validate PR Title
-    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -43,6 +42,18 @@ jobs:
               "revert",
               "style",
               "test",
+            ])
+
+            const allowedScopes = new Set([
+              "ci",
+              "config",
+              "deps",
+              "docs",
+              "home",
+              "repo",
+              "supabase",
+              "testing",
+              "tooling",
             ])
 
             const failures = []
@@ -66,8 +77,10 @@ jobs:
                 )
               }
 
-              if (scope !== scope.toLowerCase()) {
-                failures.push("PR title scope must be lowercase.")
+              if (!allowedScopes.has(scope)) {
+                failures.push(
+                  `PR title scope must be one of: ${Array.from(allowedScopes).join(", ")}.`
+                )
               }
 
               if (subject.trim().length === 0) {
@@ -96,7 +109,6 @@ jobs:
 
   sync-labels:
     name: Sync PR Labels
-    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
 
     steps:
