@@ -58,7 +58,7 @@ export function HomeFormSection(): JSX.Element {
             <label className="flex flex-1 flex-col gap-2">
               <span className="text-sm text-muted-foreground">Name</span>
               <Input
-                aria-invalid={field.state.meta.errors.length > 0}
+                aria-invalid={field.state.meta.errors.length > 0 || undefined}
                 name={field.name}
                 placeholder="Ada"
                 value={field.state.value}
