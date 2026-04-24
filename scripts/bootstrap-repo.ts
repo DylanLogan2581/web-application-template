@@ -599,11 +599,18 @@ function replaceFirstInFile(
   pattern: RegExp,
   replacement: string,
 ): void {
-  if (!fs.existsSync(filePath)) {
-    return;
+  let fileContents: string;
+
+  try {
+    fileContents = fs.readFileSync(filePath, "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return;
+    }
+
+    throw error;
   }
 
-  const fileContents = fs.readFileSync(filePath, "utf8");
   const updatedContents = fileContents.replace(pattern, replacement);
 
   if (updatedContents !== fileContents) {
@@ -616,11 +623,18 @@ function replaceAllInFile(
   pattern: RegExp,
   replacement: string,
 ): void {
-  if (!fs.existsSync(filePath)) {
-    return;
+  let fileContents: string;
+
+  try {
+    fileContents = fs.readFileSync(filePath, "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return;
+    }
+
+    throw error;
   }
 
-  const fileContents = fs.readFileSync(filePath, "utf8");
   const updatedContents = fileContents.replaceAll(pattern, replacement);
 
   if (updatedContents !== fileContents) {
