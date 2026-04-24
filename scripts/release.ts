@@ -3,8 +3,6 @@ import { execSync } from "node:child_process";
 const args = process.argv.slice(2);
 const isDryRun = args.includes("--dry-run");
 
-const baseCommand = "npx release-it --ci";
-
 function runInherit(command: string): void {
   execSync(command, { stdio: "inherit" });
 }
@@ -26,7 +24,7 @@ function assertOnMainBranch(): void {
 }
 
 function buildReleaseCommand(): string {
-  const commandParts = [baseCommand];
+  const commandParts = ["npx semantic-release", "--no-ci"];
 
   if (isDryRun) {
     commandParts.push("--dry-run");
@@ -38,7 +36,3 @@ function buildReleaseCommand(): string {
 const releaseCommand = buildReleaseCommand();
 assertOnMainBranch();
 runInherit(releaseCommand);
-
-if (!isDryRun) {
-  runInherit("git push --follow-tags origin main");
-}
