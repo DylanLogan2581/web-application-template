@@ -549,7 +549,7 @@ function rewriteTemplateReferences({
   replaceAllInFile(".github/CODEOWNERS", /@[\w-]+/g, `@${maintainerLogin}`);
   replaceAllInFile(
     "SECURITY.md",
-    /https:\/\/github\.com\/[A-Za-z0-9-]+/g,
+    new RegExp(`https://github\\.com/${TEMPLATE_USER_LOGIN}`, "g"),
     `https://github.com/${maintainerLogin}`,
   );
   replaceFirstInFile(
